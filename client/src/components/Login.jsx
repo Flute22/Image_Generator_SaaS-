@@ -2,10 +2,16 @@ import { useContext, useEffect, useState } from "react"
 import { assets } from "../assets/assets"
 import { AppContext } from "../context/AppContext"
 import { motion } from "framer-motion"
+import axios from "axios"
+import { toast } from "react-toastify"
 
 const Login = () => {
   const [ state, setState ] = useState("Login")
-  const { setShowLogin } = useContext(AppContext)
+  const { setShowLogin, backendUrl, setAccessToken, setRefreshToken, setUser } = useContext(AppContext)
+
+  const [ name, setName ] = useState("")
+  const [ email, setEmail ] = useState("")
+  const [ password, setPassword ] = useState("")
 
   useEffect(() => {
     document.body.style.overflow = "hidden"
@@ -14,9 +20,46 @@ const Login = () => {
     }
   }, [])
 
+
+  const onSubmitHandler = async (e) => {
+    e.preventDefault()
+
+    try {
+        if ( state === 'Login' ) {
+            const { data } = await axios.post( backendUrl + '/api/v1/users/login', { email, password }, { withCredentials: true })
+
+            if ( data.success ) {
+                setAccessToken(data.data.accessToken)
+                setRefreshToken(data.data.refreshToken)
+                setUser(data.data.user)
+                localStorage.setItem('accessToken', data.data.accessToken)
+                localStorage.setItem('refreshToken', data.data.refreshToken)
+                setShowLogin(false)
+                console.log("User logged In")
+                console.log(data)
+            } else {
+                toast.error(data.message)
+            }
+        } else {
+            const { data } = await axios.post( backendUrl + '/api/v1/users/register', { name, email, password })
+
+            if ( data.success ) {
+                setUser(data.data)
+                setShowLogin(false)
+            } else {
+                toast.error(data.message)
+            }
+        }
+    } catch (error) {
+        toast.error(error.message)
+    }
+  }
+
+
   return (
     <div className="fixed top-0 left-0 right-0 bottom-0 z-10 backdrop-blur-sm bg-black/30 flex justify-center items-center">
         <motion.form 
+            onSubmit={onSubmitHandler}
             className="relative bg-white p-10 rounded-xl text-slate-500"
             initial={{ opacity: 0, y: 100 }}
             transition={{ duration: 0.4, ease: "easeInOut" }}
@@ -34,12 +77,13 @@ const Login = () => {
                     className="w-4 opacity-50"
                 />
                 <input 
+                    onChange={ e => setName(e.target.value) }
                     type="text" 
                     placeholder="FullName: " 
                     required
                     className="outline-none text-sm"
                 />
-            </div>}
+            </div> }
 
             <div className="border px-5 flex items-center gap-2 rounded-full mt-4 py-2">
                 <img 
@@ -48,6 +92,7 @@ const Login = () => {
                     className=""
                 />
                 <input 
+                    onChange={ e => setEmail(e.target.value) }
                     type="text" 
                     placeholder="Email: " 
                     required
@@ -62,6 +107,7 @@ const Login = () => {
                     className=""
                 />
                 <input 
+                    onChange={ e => setPassword(e.target.value) }
                     type="text" 
                     placeholder="Password: " 
                     required

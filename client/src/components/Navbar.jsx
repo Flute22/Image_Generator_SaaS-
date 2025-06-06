@@ -1,13 +1,16 @@
-import { useContext, useState } from "react";
-import { assets } from "../assets/assets";
-import { Link, useNavigate } from "react-router-dom";
-import { AppContext } from "../context/AppContext";
+import { useContext } from "react"
+import { assets } from "../assets/assets"
+import { Link, useNavigate } from "react-router-dom"
+import { AppContext } from "../context/AppContext"
 
 const Navbar = () => {
-  //   const [ user, setUser ] = useState(null)
-  const { user, setShowLogin } = useContext(AppContext);
+  const { user, setShowLogin } = useContext(AppContext)
 
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    
+  }
 
   return (
     <div className="flex items-center justify-between py-4">
@@ -16,7 +19,7 @@ const Navbar = () => {
       </Link>
 
       <div className="flex items-center gap-2 sm:gap-5">
-        {user ? (
+        { user ? (
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={() => navigate("/buy")}
@@ -37,12 +40,12 @@ const Navbar = () => {
               />
               <div className="absolute hidden group-hover:block top-0 right-0 z-10 text-black rounded pt-12">
                 <ul className="m-0 p-[6px] bg-white rounded-md text-sm">
-                  <li className="py-1 px-2 cursor-pointer pr-10">LogOut</li>
+                  <li onClick={handleLogout} className="py-1 px-2 cursor-pointer pr-10">LogOut</li>
                 </ul>
               </div>
             </div>
           </div>
-        ) : (
+        ) : ( 
           <div className="flex items-center gap-2 sm:gap-5">
             <p onClick={() => navigate("/buy")} className="cursor-pointer">
               Pricing

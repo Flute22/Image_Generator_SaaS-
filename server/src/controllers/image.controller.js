@@ -28,7 +28,6 @@ export const generateImage = asyncHandler( async ( req, res ) => {
     const base64Image = Buffer.from( data, 'binary' ).toString('base64');
     const resultImage = `data:image/png;base64,${base64Image}`;
 
-    // -> if any issue occurs then check this line 
     await User.findByIdAndUpdate(req.user._id, { creditBalance: user.creditBalance - 1 });
 
     return res 
