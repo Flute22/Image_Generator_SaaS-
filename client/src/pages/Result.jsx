@@ -1,14 +1,35 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { assets } from "../assets/assets";
 import { motion } from "framer-motion";
+import { AppContext } from "../context/AppContext";
+import { useNavigate } from "react-router-dom";
 
 const Result = () => {
   const [ image, setImage ] = useState(assets.sample_img_1);
-  const [ isImageLoading, setImageLoading ] = useState(false);
+  const [ isImageLoading, setIsImageLoading ] = useState(false);
   const [ loading, setLoading ] = useState(false);
   const [ input, setInput ] = useState('');
+
+  const { generateImage } = useContext(AppContext)
+
   
-  const onSubmitHandler = async (e) => {}
+  const onSubmitHandler = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+
+  
+    try {
+      if ( input ) {
+        const image = await generateImage(input)
+        if(image) {
+          setIsImageLoading(true)
+          setImage(image)
+        }
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <motion.form 
@@ -41,7 +62,7 @@ const Result = () => {
 
           <button
             type="submit"
-            className="bg-zinc-900 px-10 sm:px-16 py-3 rounded-full"
+            className="bg-zinc-900 px-10 sm:px-16 py-3 rounded-full cursor-pointer"
           >
             Generate
           </button>
@@ -50,7 +71,7 @@ const Result = () => {
 
       { isImageLoading && (
         <div className="flex gap-2 flex-wrap justify-center text-white text-sm p-0.5 mt-10 rounded-full">
-          <p onClick={() => {setImageLoading(false)}} className="bg-transparent border border-zinc-900 text-black px-8 py-3 rounded-full cursor-pointer">
+          <p onClick={() => {setIsImageLoading(false)}} className="bg-transparent border border-zinc-900 text-black px-8 py-3 rounded-full cursor-pointer">
             Generate Another
           </p>
 

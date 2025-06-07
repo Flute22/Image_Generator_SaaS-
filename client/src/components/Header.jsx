@@ -2,9 +2,11 @@ import { useContext } from "react";
 import { assets } from "../assets/assets"
 import { motion } from "motion/react"
 import { AppContext } from "../context/AppContext";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
-  const { user, setShowLogin } = useContext(AppContext);
+  const { user, setShowLogin, credits} = useContext(AppContext);
+  const navigate = useNavigate()
     
   const loginFirstForImageGeneration = () => {
     if (user) {

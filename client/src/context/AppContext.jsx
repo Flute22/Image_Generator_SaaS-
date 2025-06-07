@@ -1,5 +1,7 @@
 import { createContext, useState, useEffect } from 'react'
 import axios from 'axios'
+import { toast } from 'react-toastify'
+import { useNavigate } from 'react-router-dom'
 
 export const AppContext = createContext()
 
@@ -48,8 +50,62 @@ const AppContextProvider = (props) => {
         fetchUser();
     }, []);
 
+
+    const navigate = useNavigate()
+
+
+    const loadCreditsData = async () => {
+        try {
+            const { data } = await axios.get(backendUrl + '/api/v1/users/credits', { headers: { Authorization: `Bearer ${accessToken}`} })
+            
+
+            if ( data.success ) {
+                // console.log(data)
+                setCredit(data.data.credits)
+            }
+        } catch (error) {
+            console.log(error)
+            toast.error(error.message)
+        }
+    }
+
+
+    const generateImage = async (prompt) => {
+        try {
+            const { data } = await axios.post(backendUrl + '/api/v1/images/generate', { prompt }, { headers: { Authorization: `Bearer ${accessToken}`} });
+
+            if ( data.success ) {
+                console.log(data)
+                await loadCreditsData()
+                return data.data.image
+            } else {
+                toast.error(data.data.message)
+                await loadCreditsData()
+                if ( data.data.creditBalance === 0 ) {
+                    navigate('/buy')
+                }
+            }
+        } catch (error) {
+            toast.error(error.message)
+        }
+    }
+
+
+    const logout = () => {
+        localStorage.removeItem('accessToken')
+        setAccessToken(null)
+        setUser(null)
+    }
+
+
+    useEffect(() => {
+        if (accessToken) {
+            loadCreditsData()
+        }
+    }, [accessToken])
+
     const value = {
-        user, setUser, showLogin, setShowLogin, backendUrl, accessToken, setAccessToken, refreshToken, setRefreshToken, credit, setCredit,
+        user, setUser, showLogin, setShowLogin, backendUrl, accessToken, setAccessToken, refreshToken, setRefreshToken, credit, setCredit, loadCreditsData, logout, generateImage
     }
 
     return (
